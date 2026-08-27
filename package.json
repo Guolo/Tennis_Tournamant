@@ -1,0 +1,16 @@
+{
+  "name": "tennis",
+  "version": "1.0.0",
+  "description": "App per la gestione di tornei di tennis ad eliminazione diretta",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.19.2",
+    "nanoid": "^3.3.7"
+  }
+}

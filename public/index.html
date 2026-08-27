@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Tornei Tennis</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="header">
+  <h1>🎾 Tornei Tennis</h1>
+  <p>Organizza e gestisci tornei ad eliminazione diretta</p>
+</div>
+
+<div class="contenitore">
+
+  <!-- Avvia nuovo torneo -->
+  <div class="card">
+    <a href="/create.html" class="btn btn-primario">+ Nuovo Torneo</a>
+  </div>
+
+  <!-- Recupero torneo tramite seed -->
+  <div class="card">
+    <p class="card-titolo">Riprendi un torneo</p>
+    <label for="input-seed">Seed / Codice di recupero</label>
+    <div class="gruppo-seed">
+      <input type="text" id="input-seed" placeholder="ES. X7K9P2QZ" maxlength="12" />
+      <button class="btn-neutro" id="btn-entra">Entra</button>
+    </div>
+    <div id="errore-seed"></div>
+  </div>
+
+  <!-- Storico tornei conclusi -->
+  <div class="card">
+    <p class="card-titolo">Storico Tornei</p>
+    <div id="lista-storico">
+      <div class="spinner">Caricamento…</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/home.js"></script>
+</body>
+</html>

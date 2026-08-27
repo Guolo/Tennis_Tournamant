@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Torneo in corso</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="header">
+  <h1 id="titolo-torneo">Caricamento…</h1>
+  <a href="/index.html" class="link-indietro">← Torna alla home</a>
+</div>
+
+<div class="contenitore">
+
+  <div id="banner-nuovo" style="display:none;" class="avviso">
+    Torneo creato! Salva il codice qui sotto: ti serve per riprendere la gestione da un altro
+    dispositivo, o per rivedere i risultati dopo la conclusione.
+  </div>
+
+  <div class="card centrato">
+    <p class="card-titolo">Seed / Codice di recupero</p>
+    <div class="testo-seed" id="testo-seed">——</div>
+  </div>
+
+  <div id="banner-concluso" style="display:none;" class="avviso">
+    🏁 Torneo concluso — modalità sola lettura. Vincitore: <b id="nome-vincitore-finale"></b>
+  </div>
+
+  <div id="area-errore"></div>
+
+  <div id="area-contenuto">
+    <div class="spinner">Caricamento torneo…</div>
+  </div>
+
+  <div id="footer-torneo" class="footer-torneo" style="display:none;">
+    <button class="btn-pericolo btn-blocco" id="btn-termina">🏁 Termina Torneo</button>
+  </div>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/tournament.js"></script>
+</body>
+</html>

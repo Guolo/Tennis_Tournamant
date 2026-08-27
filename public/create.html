@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Nuovo Torneo</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="header">
+  <h1>Nuovo Torneo</h1>
+  <a href="/index.html" class="link-indietro">← Torna alla home</a>
+</div>
+
+<div class="contenitore">
+
+  <div class="card">
+    <label for="nome-torneo">Nome del torneo</label>
+    <input type="text" id="nome-torneo" placeholder="Es. Torneo Sociale Estate 2026" />
+
+    <label>Formato dei match</label>
+    <div class="scelta-formato">
+      <label>
+        <input type="radio" name="formato" value="3" checked />
+        <span>Al meglio dei 3 set</span>
+      </label>
+      <label>
+        <input type="radio" name="formato" value="5" />
+        <span>Al meglio dei 5 set</span>
+      </label>
+    </div>
+
+    <label>Partecipanti</label>
+    <div id="lista-giocatori"></div>
+    <button type="button" class="btn-neutro" id="btn-aggiungi" style="width:100%; margin-top:6px;">
+      + Aggiungi giocatore
+    </button>
+  </div>
+
+  <div id="errore-creazione"></div>
+
+  <button class="btn-primario btn-blocco" id="btn-conferma">Conferma e genera tabellone</button>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/create.js"></script>
+</body>
+</html>

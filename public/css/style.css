@@ -1,0 +1,294 @@
+/* ============================================================
+   style.css - UI pulita, moderna, pensata per l'uso a bordo
+   campo da smartphone (tap target grandi, contrasto alto,
+   leggibile anche sotto il sole).
+   ============================================================ */
+
+:root {
+  --verde-campo: #1e6b3c;
+  --verde-scuro: #124a28;
+  --giallo-tennis: #d4f000;
+  --sfondo: #f4f6f4;
+  --testo: #142016;
+  --testo-secondario: #5a6b5d;
+  --bianco: #ffffff;
+  --rosso: #d64545;
+  --bordo: #e0e5e0;
+  --radius: 14px;
+  --ombra: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* disabilita lo zoom al doppio tap, mantiene il pinch-zoom */
+}
+
+.contenitore {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+/* ---- Header ---- */
+.header {
+  background: linear-gradient(135deg, var(--verde-campo), var(--verde-scuro));
+  color: var(--bianco);
+  padding: 20px 16px 24px;
+  border-radius: 0 0 20px 20px;
+  box-shadow: var(--ombra);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+}
+
+/* ---- Bottoni ---- */
+button, .btn {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  cursor: pointer;
+  min-height: 48px; /* tap target comodo */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.05s ease, opacity 0.15s ease;
+  text-decoration: none;
+  touch-action: manipulation; /* ridondante rispetto a html/body ma più sicuro su iOS Safari */
+}
+button:active, .btn:active { transform: scale(0.97); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primario { background: var(--verde-campo); color: var(--bianco); width: 100%; }
+.btn-secondario { background: var(--bianco); color: var(--verde-campo); border: 2px solid var(--verde-campo); width: 100%; }
+.btn-pericolo { background: var(--rosso); color: var(--bianco); }
+.btn-neutro { background: #e9ece9; color: var(--testo); }
+.btn-piccolo { padding: 8px 14px; min-height: 36px; font-size: 14px; }
+.btn-blocco { width: 100%; margin-top: 10px; }
+
+/* ---- Card ---- */
+.card {
+  background: var(--bianco);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--ombra);
+  margin-bottom: 14px;
+}
+
+.card-titolo {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-secondario);
+  margin: 0 0 10px;
+}
+
+/* ---- Form ---- */
+label { font-size: 14px; font-weight: 600; color: var(--testo-secondario); }
+
+input[type="text"], input[type="number"], select {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--bordo);
+  margin-top: 6px;
+  margin-bottom: 14px;
+  background: var(--bianco);
+  color: var(--testo);
+}
+input:focus, select:focus { outline: 2px solid var(--verde-campo); border-color: var(--verde-campo); }
+
+.riga-giocatore { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.riga-giocatore input { margin: 0; flex: 1; }
+.riga-giocatore .rimuovi { background: transparent; color: var(--rosso); min-height: 40px; padding: 6px 10px; }
+
+.scelta-formato { display: flex; gap: 10px; margin-bottom: 14px; }
+.scelta-formato label {
+  flex: 1; text-align: center; padding: 12px; border-radius: 10px;
+  border: 1.5px solid var(--bordo); cursor: pointer; font-size: 14px; color: var(--testo);
+}
+.scelta-formato input { display: none; }
+.scelta-formato input:checked + span { color: var(--verde-campo); font-weight: 700; }
+.scelta-formato label:has(input:checked) { border-color: var(--verde-campo); background: #eef8f0; }
+
+/* ---- Storico tornei ---- */
+.torneo-storico {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--bordo);
+}
+.torneo-storico:last-child { border-bottom: none; }
+.torneo-storico .nome { font-weight: 700; font-size: 15px; }
+.torneo-storico .data { font-size: 12px; color: var(--testo-secondario); }
+.torneo-storico .vincitore {
+  font-size: 13px; color: var(--verde-campo); font-weight: 700;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.vuoto { text-align: center; color: var(--testo-secondario); padding: 24px 0; font-size: 14px; }
+
+/* ---- Recupero seed ---- */
+.gruppo-seed { display: flex; gap: 8px; }
+.gruppo-seed input { margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ---- Match card (schermata "in corso") ---- */
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.badge-corso { background: #eef8f0; color: var(--verde-campo); }
+.badge-concluso { background: #eee; color: var(--testo-secondario); }
+.badge-saltato { background: #fff3e0; color: #b8720a; }
+
+.match-attivo { border: 2px solid var(--verde-campo); }
+
+.giocatore-riga {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 4px;
+}
+.giocatore-nome { font-size: 17px; font-weight: 600; }
+.giocatore-nome.vincitore::after { content: " ✓"; color: var(--verde-campo); }
+.set-punti { display: flex; gap: 6px; }
+.set-pallino {
+  width: 26px; height: 26px; border-radius: 50%; background: #e9ece9;
+  color: var(--testo-secondario); font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.set-pallino.vinto { background: var(--verde-campo); color: var(--bianco); }
+
+.pulsanti-set { display: flex; gap: 10px; margin-top: 10px; }
+.pulsanti-set button { flex: 1; font-size: 15px; }
+.btn-set-a { background: #eef8f0; color: var(--verde-scuro); border: 2px solid var(--verde-campo); }
+.btn-set-b { background: #eef4fb; color: #1b4e8c; border: 2px solid #1b6fd6; }
+
+.azioni-match { display: flex; gap: 8px; margin-top: 12px; }
+.azioni-match button { flex: 1; font-size: 13px; }
+
+.vs { text-align: center; color: var(--testo-secondario); font-size: 12px; font-weight: 700; }
+
+/* ---- Round / bracket ---- */
+.round-titolo {
+  font-size: 14px; font-weight: 700; color: var(--verde-scuro);
+  margin: 22px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+.round-titolo::before, .round-titolo::after {
+  content: ""; flex: 1; height: 1px; background: var(--bordo);
+}
+
+.mini-match {
+  background: var(--bianco); border-radius: 10px; padding: 10px 12px;
+  margin-bottom: 8px; box-shadow: var(--ombra); font-size: 14px;
+}
+.mini-match .riga { display: flex; justify-content: space-between; padding: 3px 0; color: var(--testo-secondario); }
+.mini-match .riga.vince { color: var(--testo); font-weight: 700; }
+.mini-match .stato-mini { font-size: 11px; color: var(--testo-secondario); margin-top: 4px; }
+
+/* ---- Sticky footer azioni torneo ---- */
+.footer-torneo {
+  position: sticky; bottom: 0; background: var(--sfondo);
+  padding-top: 10px; margin-top: 10px;
+}
+
+.testo-seed {
+  font-family: "SF Mono", Consolas, monospace; font-size: 20px; font-weight: 700;
+  letter-spacing: 0.12em; color: var(--verde-scuro); text-align: center;
+}
+
+.avviso {
+  background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+  padding: 10px 14px; font-size: 13px; color: #8a6100; margin-bottom: 14px;
+}
+
+.msg-errore {
+  background: #fdecea; border: 1px solid #f5c2c0; color: #a12a24;
+  border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px;
+}
+
+.link-indietro {
+  color: var(--bianco); font-size: 13px; text-decoration: none; opacity: 0.9;
+}
+
+/* ---- Tabella classifica ---- */
+.scroll-tabella { overflow-x: auto; }
+
+.tabella-classifica {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 420px;
+}
+
+.tabella-classifica th, .tabella-classifica td {
+  padding: 9px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--bordo);
+  white-space: nowrap;
+}
+
+.tabella-classifica th {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--testo-secondario);
+  font-weight: 700;
+}
+
+.tabella-classifica td.cl-nome { text-align: left; font-weight: 600; }
+.tabella-classifica td.cl-pos { font-weight: 700; color: var(--testo-secondario); }
+.tabella-classifica td.cl-set { font-weight: 700; color: var(--verde-campo); }
+
+.tabella-classifica tr.riga-vincitore { background: #eef8f0; }
+.tabella-classifica tr.riga-vincitore td.cl-pos { color: var(--verde-campo); }
+
+.nota-classifica { font-size: 12px; color: var(--testo-secondario); margin: 8px 0 0; }
+
+.centrato { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.spinner { text-align: center; padding: 40px 0; color: var(--testo-secondario); }
+
+/* ---- Elenco set modificabili ---- */
+.elenco-set { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+
+.riga-set {
+  background: #f6f8f6; border-radius: 10px; padding: 8px 10px;
+}
+.riga-set-testo { display: flex; justify-content: space-between; align-items: center; }
+.set-label { font-size: 12px; font-weight: 700; color: var(--testo-secondario); text-transform: uppercase; }
+.set-vincitore { font-size: 14px; font-weight: 700; color: var(--testo); }
+
+.modifica-set-azioni { display: flex; gap: 6px; margin-top: 6px; }
+.modifica-set-azioni button { flex: 1; font-size: 12px; padding: 7px 8px; min-height: 32px; }
+.btn-set-selezionato { background: var(--verde-campo); color: var(--bianco); }
+
+.nessun-set { font-size: 13px; color: var(--testo-secondario); }
+
+/* ---- Pannello "modifica set" richiudibile nel calendario ---- */
+.riga-stato-modifica { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.link-modifica {
+  background: none; border: none; color: var(--verde-campo); font-weight: 700;
+  font-size: 12px; padding: 4px 6px; min-height: auto;
+}
+.pannello-modifica { margin-top: 8px; border-top: 1px dashed var(--bordo); padding-top: 8px; }
+.pannello-modifica.nascosto { display: none; }
+.nascosto { display: none; }
