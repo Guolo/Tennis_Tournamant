@@ -155,6 +155,62 @@ function concludiMatch(matchId, vincitoreId) {
 }
 
 // ------------------------------------------------------------
+// Ricalcola l'esito di un match "rigiocando" virtualmente i set
+// nel loro ordine cronologico (numero_set), fermandosi non appena
+// un giocatore raggiunge i set necessari per vincere. Questo serve
+// perché una modifica al vincitore di un set passato può anticipare
+// il momento in cui il match si sarebbe dovuto concludere: eventuali
+// set registrati DOPO quel punto non sarebbero mai dovuti esistere
+// (es. modificando il 2° set di un "al meglio dei 3" in modo che
+// decida già la partita, il 3° set giocato per errore va rimosso,
+// altrimenti continuerebbe a contare in classifica).
+// Se invece nessuno raggiunge i set necessari con i set esistenti,
+// il match torna/resta "pronto" (nessun set viene eliminato in
+// questo caso: sono tutti legittimi, semplicemente non bastano
+// ancora a decidere il match).
+// ------------------------------------------------------------
+function ricalcolaEsitoMatch(matchId, giocatoreAId, giocatoreBId, necessari) {
+  const setOrdinati = db
+    .prepare('SELECT * FROM SetPartita WHERE match_id = ? ORDER BY numero_set')
+    .all(matchId);
+
+  let vintiA = 0;
+  let vintiB = 0;
+  let vincitore = null;
+  let numeroSetConclusivo = null;
+
+  for (const s of setOrdinati) {
+    if (s.vincitore_id === giocatoreAId) vintiA++;
+    else vintiB++;
+
+    if (vintiA >= necessari) {
+      vincitore = giocatoreAId;
+      numeroSetConclusivo = s.numero_set;
+      break;
+    }
+    if (vintiB >= necessari) {
+      vincitore = giocatoreBId;
+      numeroSetConclusivo = s.numero_set;
+      break;
+    }
+  }
+
+  if (vincitore) {
+    // Rimuove eventuali set giocati dopo la conclusione: non
+    // sarebbero mai dovuti esistere.
+    db.prepare('DELETE FROM SetPartita WHERE match_id = ? AND numero_set > ?').run(
+      matchId,
+      numeroSetConclusivo
+    );
+    concludiMatch(matchId, vincitore);
+  } else {
+    db.prepare(
+      "UPDATE Match SET vincitore_id = NULL, stato = 'pronto', saltato = 0 WHERE id = ?"
+    ).run(matchId);
+  }
+}
+
+// ------------------------------------------------------------
 // Registra il set vinto da un giocatore (A o B) in un match.
 // Se il numero di set necessari viene raggiunto, il match viene
 // concluso automaticamente.
@@ -181,19 +237,8 @@ function registraSet(seed, matchId, lato) {
       'INSERT INTO SetPartita (match_id, numero_set, vincitore_id) VALUES (?, ?, ?)'
     ).run(matchId, setEsistenti + 1, vincitoreSetId);
 
-    const setVintiA = db
-      .prepare('SELECT COUNT(*) AS n FROM SetPartita WHERE match_id = ? AND vincitore_id = ?')
-      .get(matchId, match.giocatore_a_id).n;
-    const setVintiB = db
-      .prepare('SELECT COUNT(*) AS n FROM SetPartita WHERE match_id = ? AND vincitore_id = ?')
-      .get(matchId, match.giocatore_b_id).n;
-
     const necessari = setNecessariPerVincere(torneo.formato_set);
-    if (setVintiA >= necessari) {
-      concludiMatch(matchId, match.giocatore_a_id);
-    } else if (setVintiB >= necessari) {
-      concludiMatch(matchId, match.giocatore_b_id);
-    }
+    ricalcolaEsitoMatch(matchId, match.giocatore_a_id, match.giocatore_b_id, necessari);
   });
   transazione();
 
@@ -237,9 +282,12 @@ function annullaUltimoSet(seed, matchId) {
 // correggere un errore di tap notato in un secondo momento,
 // anche su un match già concluso). Consentito solo finché il
 // torneo è in corso. Dopo la modifica, il match viene
-// ricalcolato da zero in base al nuovo conteggio dei set:
-// - se un giocatore raggiunge/mantiene i set necessari, il
-//   match resta/diventa concluso con quel vincitore;
+// ricalcolato "rigiocando" i set in ordine cronologico
+// (ricalcolaEsitoMatch):
+// - se un giocatore raggiunge i set necessari, il match
+//   resta/diventa concluso con quel vincitore, ed eventuali set
+//   successivi giocati per errore (perché il match sarebbe già
+//   dovuto finire prima) vengono eliminati automaticamente;
 // - altrimenti il match torna "pronto" (riapre), utile ad es.
 //   se la modifica toglie la vittoria a chi era stato dato
 //   vincitore.
@@ -268,24 +316,8 @@ function modificaSet(seed, matchId, setId, lato) {
       setId
     );
 
-    const setVintiA = db
-      .prepare('SELECT COUNT(*) AS n FROM SetPartita WHERE match_id = ? AND vincitore_id = ?')
-      .get(matchId, match.giocatore_a_id).n;
-    const setVintiB = db
-      .prepare('SELECT COUNT(*) AS n FROM SetPartita WHERE match_id = ? AND vincitore_id = ?')
-      .get(matchId, match.giocatore_b_id).n;
-
     const necessari = setNecessariPerVincere(torneo.formato_set);
-    if (setVintiA >= necessari) {
-      concludiMatch(matchId, match.giocatore_a_id);
-    } else if (setVintiB >= necessari) {
-      concludiMatch(matchId, match.giocatore_b_id);
-    } else {
-      // La modifica ha tolto al match il requisito per essere concluso: lo riapre.
-      db.prepare(
-        "UPDATE Match SET vincitore_id = NULL, stato = 'pronto', saltato = 0 WHERE id = ?"
-      ).run(matchId);
-    }
+    ricalcolaEsitoMatch(matchId, match.giocatore_a_id, match.giocatore_b_id, necessari);
   });
   transazione();
 
@@ -311,11 +343,31 @@ function saltaMatch(seed, matchId, saltato) {
 }
 
 // ------------------------------------------------------------
+// Restituisce l'id del vincitore dello scontro diretto tra due
+// giocatori all'interno dello stesso torneo (o null se il match
+// tra i due non esiste o non è ancora concluso). Usato come
+// spareggio in classifica in caso di parità totale tra due
+// giocatori.
+// ------------------------------------------------------------
+function getVincitoreScontroDiretto(torneoId, idGiocatoreA, idGiocatoreB) {
+  const m = db
+    .prepare(
+      `SELECT vincitore_id FROM Match
+       WHERE torneo_id = ? AND stato = 'concluso'
+         AND ((giocatore_a_id = ? AND giocatore_b_id = ?)
+           OR (giocatore_a_id = ? AND giocatore_b_id = ?))`
+    )
+    .get(torneoId, idGiocatoreA, idGiocatoreB, idGiocatoreB, idGiocatoreA);
+  return m ? m.vincitore_id : null;
+}
+
+// ------------------------------------------------------------
 // Calcola la classifica del girone: per ogni giocatore conta
 // partite giocate/vinte e soprattutto set vinti/persi, che è il
 // criterio principale di ordinamento richiesto. A parità di set
 // vinti si usa come spareggio la differenza set, poi le partite
-// vinte.
+// vinte, poi (a parità totale tra due giocatori) lo scontro
+// diretto, e infine il nome come ultimissima ancora di salvezza.
 // ------------------------------------------------------------
 function calcolaClassifica(torneoId) {
   const giocatori = db
@@ -369,6 +421,15 @@ function calcolaClassifica(torneoId) {
     if (b.set_vinti !== a.set_vinti) return b.set_vinti - a.set_vinti;
     if (b.differenza_set !== a.differenza_set) return b.differenza_set - a.differenza_set;
     if (b.partite_vinte !== a.partite_vinte) return b.partite_vinte - a.partite_vinte;
+
+    const vincitoreDiretto = getVincitoreScontroDiretto(
+      torneoId,
+      a.giocatore_id,
+      b.giocatore_id
+    );
+    if (vincitoreDiretto === a.giocatore_id) return -1;
+    if (vincitoreDiretto === b.giocatore_id) return 1;
+
     return a.nome.localeCompare(b.nome);
   });
 
