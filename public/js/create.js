@@ -3,14 +3,13 @@
 // ============================================================
 
 const listaGiocatori = document.getElementById('lista-giocatori');
-let contatoreGiocatori = 0;
 
 function aggiungiRigaGiocatore(valore = '') {
-  contatoreGiocatori++;
+  const numeroPlaceholder = listaGiocatori.children.length + 1;
   const riga = document.createElement('div');
   riga.className = 'riga-giocatore';
   riga.innerHTML = `
-    <input type="text" placeholder="Giocatore ${contatoreGiocatori}" value="${valore}" />
+    <input type="text" placeholder="Giocatore ${numeroPlaceholder}" value="${valore}" />
     <button type="button" class="rimuovi" title="Rimuovi">✕</button>
   `;
   riga.querySelector('.rimuovi').addEventListener('click', () => {
