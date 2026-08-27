@@ -1,4 +1,4 @@
-# Tennis_Tournamant
+# Tennis_Tournament
 Organize round-robin tennis tournaments and save the results in a database visible on the homepage.
 The application is publicly deployed and available at: https://tennis.guolo.eu
 
