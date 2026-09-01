@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+
+# Database locale: non va incluso nell'immagine, viene creato/persistito
+# tramite il volume Docker a runtime
+db/data
+
+.git
+.gitignore
+.DS_Store
+*.zip
+README.md
+Dockerfile
+docker-compose.yml
