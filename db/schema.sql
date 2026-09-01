@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS Tornei (
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,
     seed                TEXT UNIQUE NOT NULL,          -- codice di recupero (es. "X7K9-P2QZ")
     nome                TEXT NOT NULL,
+    tipo                TEXT NOT NULL DEFAULT 'torneo' CHECK (tipo IN ('torneo', 'doppio')), -- girone completo o singolo match di doppio
     formato_set         INTEGER NOT NULL CHECK (formato_set IN (3, 5)), -- al meglio dei 3 o 5 set
     stato               TEXT NOT NULL DEFAULT 'in_corso' CHECK (stato IN ('in_corso', 'concluso')),
     numero_giocatori    INTEGER NOT NULL,
@@ -62,3 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_giocatori_torneo ON Giocatori(torneo_id);
 CREATE INDEX IF NOT EXISTS idx_match_torneo ON Match(torneo_id);
 CREATE INDEX IF NOT EXISTS idx_set_match ON SetPartita(match_id);
 CREATE INDEX IF NOT EXISTS idx_tornei_seed ON Tornei(seed);
+-- Nota: l'indice su (tipo, stato) viene creato da database.js dopo l'eventuale
+-- migrazione, perché su un database creato con uno schema precedente la
+-- colonna 'tipo' potrebbe non esistere ancora al momento in cui questo file
+-- viene eseguito.

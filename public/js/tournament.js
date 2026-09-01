@@ -65,8 +65,13 @@ function nomeGiocatore(giocatori, id) {
 
 function render(dati) {
   const { torneo, giocatori, match, classifica } = dati;
+  const eDoppio = torneo.tipo === 'doppio';
   document.title = `${torneo.nome} · Torneo Tennis`;
   document.getElementById('titolo-torneo').textContent = torneo.nome;
+
+  document.getElementById('testo-banner-nuovo').textContent = eDoppio ? 'Match creato!' : 'Torneo creato!';
+  document.getElementById('testo-banner-concluso').textContent = eDoppio ? 'Match concluso' : 'Torneo concluso';
+  document.getElementById('btn-termina').textContent = eDoppio ? '🏁 Termina Match' : '🏁 Termina Torneo';
 
   const concluso = torneo.stato === 'concluso';
   document.getElementById('footer-torneo').style.display = concluso ? 'none' : 'block';
@@ -92,7 +97,7 @@ function render(dati) {
     }
   }
 
-  area.appendChild(renderClassifica(classifica, concluso));
+  area.appendChild(renderClassifica(classifica, concluso, eDoppio));
   area.appendChild(renderCalendario(match, giocatori, torneo));
 }
 
@@ -189,7 +194,7 @@ function renderElencoSetModificabili(m, giocatori, modificabile) {
 }
 
 // ---- Classifica del girone, ordinata per set vinti --------------------------
-function renderClassifica(classifica, concluso) {
+function renderClassifica(classifica, concluso, eDoppio) {
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -215,7 +220,7 @@ function renderClassifica(classifica, concluso) {
         <thead>
           <tr>
             <th>#</th>
-            <th>Giocatore</th>
+            <th>${eDoppio ? 'Team' : 'Giocatore'}</th>
             <th title="Partite giocate">PG</th>
             <th title="Partite vinte">PV</th>
             <th title="Set vinti">SV</th>
@@ -361,7 +366,9 @@ function mostraErrore(msg) {
 }
 
 document.getElementById('btn-termina').addEventListener('click', async () => {
-  if (!confirm('Terminare definitivamente il torneo? Da questo momento non sarà più modificabile.')) {
+  const eDoppio = statoCorrente?.torneo?.tipo === 'doppio';
+  const oggetto = eDoppio ? 'il match' : 'il torneo';
+  if (!confirm(`Terminare definitivamente ${oggetto}? Da questo momento non sarà più modificabile.`)) {
     return;
   }
   try {

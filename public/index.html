@@ -9,15 +9,24 @@
 <body>
 
 <div class="header">
-  <h1>🎾 Tornei Tennis</h1>
-  <p>Organizza e gestisci tornei ad eliminazione diretta</p>
+  <h1>🎾 Tennis</h1>
+  <p>Organizza e gestisci tornei o match in doppio</p>
 </div>
 
 <div class="contenitore">
 
-  <!-- Avvia nuovo torneo -->
+  <!-- Selettore modalità: Torneo (girone) o Doppio (match singolo) -->
+  <div class="card card-toggle">
+    <div class="toggle-modalita" id="toggle-modalita" role="tablist">
+      <span class="toggle-indicatore" id="toggle-indicatore" aria-hidden="true"></span>
+      <button type="button" class="toggle-opzione attivo" data-tipo="torneo" role="tab" aria-selected="true">Torneo</button>
+      <button type="button" class="toggle-opzione" data-tipo="doppio" role="tab" aria-selected="false">Doppio</button>
+    </div>
+  </div>
+
+  <!-- Avvia nuovo torneo / nuovo match di doppio -->
   <div class="card">
-    <a href="/create.html" class="btn btn-primario">+ Nuovo Torneo</a>
+    <a href="/create.html?tipo=torneo" class="btn btn-primario" id="link-nuovo">+ Nuovo Torneo</a>
   </div>
 
   <!-- Recupero torneo tramite seed -->
@@ -33,7 +42,7 @@
 
   <!-- Storico tornei conclusi -->
   <div class="card">
-    <p class="card-titolo">Storico Tornei</p>
+    <p class="card-titolo" id="titolo-storico">Storico Tornei</p>
     <div id="lista-storico">
       <div class="spinner">Caricamento…</div>
     </div>

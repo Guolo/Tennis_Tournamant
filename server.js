@@ -40,16 +40,17 @@ function handler(fn) {
 app.get(
   '/api/tornei/conclusi',
   handler((req, res) => {
-    res.json(getTorneiConclusi());
+    const tipo = req.query.tipo === 'doppio' ? 'doppio' : 'torneo';
+    res.json(getTorneiConclusi(tipo));
   })
 );
 
-// ---- Creazione nuovo torneo -----------------------------------------------
+// ---- Creazione nuovo torneo / nuovo match di doppio ------------------------
 app.post(
   '/api/tornei',
   handler((req, res) => {
-    const { nome, giocatori, formatoSet } = req.body;
-    const seed = creaTorneo({ nome, giocatori, formatoSet });
+    const { nome, giocatori, formatoSet, tipo } = req.body;
+    const seed = creaTorneo({ nome, giocatori, formatoSet, tipo });
     res.status(201).json({ seed });
   })
 );

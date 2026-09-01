@@ -9,14 +9,14 @@
 <body>
 
 <div class="header">
-  <h1>Nuovo Torneo</h1>
+  <h1 id="titolo-pagina">Nuovo Torneo</h1>
   <a href="/index.html" class="link-indietro">← Torna alla home</a>
 </div>
 
 <div class="contenitore">
 
   <div class="card">
-    <label for="nome-torneo">Nome del torneo</label>
+    <label for="nome-torneo" id="label-nome">Nome del torneo</label>
     <input type="text" id="nome-torneo" placeholder="Es. Torneo Sociale Estate 2026" />
 
     <label>Formato dei match</label>
@@ -31,7 +31,7 @@
       </label>
     </div>
 
-    <label>Partecipanti</label>
+    <label id="label-partecipanti">Partecipanti</label>
     <div id="lista-giocatori"></div>
     <button type="button" class="btn-neutro" id="btn-aggiungi" style="width:100%; margin-top:6px;">
       + Aggiungi giocatore

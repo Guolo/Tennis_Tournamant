@@ -12,8 +12,8 @@ const Api = {
     return dati;
   },
 
-  getTorneiConclusi() {
-    return this._richiesta('/api/tornei/conclusi');
+  getTorneiConclusi(tipo = 'torneo') {
+    return this._richiesta(`/api/tornei/conclusi?tipo=${encodeURIComponent(tipo)}`);
   },
 
   creaTorneo(payload) {

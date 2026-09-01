@@ -134,6 +134,78 @@ input:focus, select:focus { outline: 2px solid var(--verde-campo); border-color:
 .scelta-formato input:checked + span { color: var(--verde-campo); font-weight: 700; }
 .scelta-formato label:has(input:checked) { border-color: var(--verde-campo); background: #eef8f0; }
 
+/* Separatore "VS" tra le due coppie nel form di creazione del doppio.
+   Scoperto tramite #lista-giocatori per non toccare lo stile di .vs
+   già usato altrove (card del match in corso), dove le spaziature sono
+   già gestite dal padding di .giocatore-riga sopra e sotto. Qui invece
+   il div .vs non fa parte di una .riga-giocatore e quindi non erediterebbe
+   alcun margine: senza questa regola risulta più vicino alla riga
+   sottostante che a quella sopra, perché prende solo il margin-bottom
+   della riga precedente e nessun margine proprio. */
+#lista-giocatori .vs { margin: 10px 0; }
+
+/* ---- Selettore modalità (Torneo / Doppio) ---- */
+.card-toggle { padding: 6px; }
+
+.toggle-modalita {
+  position: relative;
+  display: flex;
+  background: #e9ece9;
+  border-radius: 999px;
+  padding: 4px;
+  touch-action: none; /* il trascinamento orizzontale gestisce da sé lo scroll/pan del touch */
+  user-select: none;
+  cursor: grab;
+}
+.toggle-modalita:active { cursor: grabbing; }
+
+/* "Thumb" che scorre dietro l'opzione selezionata. È un elemento a sé
+   (non lo sfondo dei bottoni) proprio per poterlo animare in scorrimento
+   con una singola transition sul transform, invece di un cambio secco
+   di sfondo da un bottone all'altro. */
+.toggle-indicatore {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: var(--bianco);
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+  transition: transform 0.28s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.toggle-indicatore.a-destra {
+  transform: translateX(100%);
+}
+
+.toggle-opzione {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--testo-secondario);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  min-height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.28s ease;
+}
+.toggle-opzione:active { transform: none; }
+.toggle-opzione.attivo { color: var(--verde-campo); }
+
+.toggle-opzione:focus-visible {
+  outline: 2px solid var(--verde-campo);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle-indicatore, .toggle-opzione { transition: none; }
+}
+
 /* ---- Storico tornei ---- */
 .torneo-storico {
   display: flex; justify-content: space-between; align-items: center;

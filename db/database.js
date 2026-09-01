@@ -28,6 +28,16 @@ db.pragma('foreign_keys = ON');
 // Inizializza lo schema se non esiste ancora
 db.exec(fs.readFileSync(SCHEMA_PATH, 'utf8'));
 
+// Migrazione leggera: i database creati con una versione dello schema
+// precedente all'introduzione della modalità "doppio" non hanno ancora la
+// colonna 'tipo'. La aggiungiamo qui se manca, così i tornei già esistenti
+// restano tutti classificati come 'torneo' (comportamento invariato).
+const colonneTornei = db.prepare('PRAGMA table_info(Tornei)').all();
+if (!colonneTornei.some((c) => c.name === 'tipo')) {
+  db.exec("ALTER TABLE Tornei ADD COLUMN tipo TEXT NOT NULL DEFAULT 'torneo'");
+}
+db.exec('CREATE INDEX IF NOT EXISTS idx_tornei_tipo_stato ON Tornei(tipo, stato)');
+
 // Alfabeto senza caratteri ambigui (0/O, 1/I/l) per un codice facile da
 // leggere e ridigitare a bordo campo.
 const generaSeed = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 8);
@@ -92,8 +102,19 @@ function generaCalendarioGironeItaliano(giocatoriIds) {
 // Creazione di un nuovo torneo + generazione automatica del
 // calendario a girone all'italiana (round robin).
 // ------------------------------------------------------------
-function creaTorneo({ nome, giocatori, formatoSet }) {
-  if (!Array.isArray(giocatori) || giocatori.length < 2) {
+function creaTorneo({ nome, giocatori, formatoSet, tipo }) {
+  const tipoNormalizzato = tipo === 'doppio' ? 'doppio' : 'torneo';
+
+  if (!Array.isArray(giocatori)) {
+    throw new Error('Elenco giocatori non valido.');
+  }
+  if (tipoNormalizzato === 'doppio') {
+    // Un match di doppio è una sfida singola tra due coppie: esattamente
+    // 2 "giocatori" (in realtà i nomi delle due coppie, es. "Rossi/Bianchi").
+    if (giocatori.length !== 2) {
+      throw new Error('Un match di doppio richiede esattamente 2 coppie.');
+    }
+  } else if (giocatori.length < 2) {
     throw new Error('Servono almeno 2 giocatori per creare un torneo.');
   }
   if (![3, 5].includes(Number(formatoSet))) {
@@ -106,13 +127,18 @@ function creaTorneo({ nome, giocatori, formatoSet }) {
     seed = generaSeed();
   } while (db.prepare('SELECT id FROM Tornei WHERE seed = ?').get(seed));
 
+  const nomeDefault =
+    tipoNormalizzato === 'doppio'
+      ? `${giocatori[0].trim()} vs ${giocatori[1].trim()}`
+      : `Torneo ${seed}`;
+
   const transazione = db.transaction(() => {
     const infoTorneo = db
       .prepare(
-        `INSERT INTO Tornei (seed, nome, formato_set, numero_giocatori)
-         VALUES (?, ?, ?, ?)`
+        `INSERT INTO Tornei (seed, nome, tipo, formato_set, numero_giocatori)
+         VALUES (?, ?, ?, ?, ?)`
       )
-      .run(seed, nome || `Torneo ${seed}`, Number(formatoSet), giocatori.length);
+      .run(seed, nome || nomeDefault, tipoNormalizzato, Number(formatoSet), giocatori.length);
     const torneoId = infoTorneo.lastInsertRowid;
 
     // Inserisce i giocatori
@@ -489,17 +515,18 @@ function getTorneoBySeed(seed) {
   return db.prepare('SELECT * FROM Tornei WHERE seed = ?').get((seed || '').toUpperCase());
 }
 
-function getTorneiConclusi() {
+function getTorneiConclusi(tipo) {
+  const tipoNormalizzato = tipo === 'doppio' ? 'doppio' : 'torneo';
   return db
     .prepare(
       `SELECT t.id, t.seed, t.nome, t.data_creazione, t.data_conclusione,
               g.nome AS vincitore_nome
        FROM Tornei t
        LEFT JOIN Giocatori g ON g.id = t.vincitore_finale_id
-       WHERE t.stato = 'concluso'
+       WHERE t.stato = 'concluso' AND t.tipo = ?
        ORDER BY t.data_conclusione DESC`
     )
-    .all();
+    .all(tipoNormalizzato);
 }
 
 // Restituisce il torneo con giocatori, calendario/match, set e
