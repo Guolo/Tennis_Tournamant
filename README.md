@@ -1,5 +1,5 @@
 # Tennis_Tournament
-Organize round-robin tennis tournaments and save the results in a database visible on the homepage.
+Organize round-robin tennis tournaments or doubles modes and save the results in a database visible on the homepage.
 The application is publicly deployed and available at: https://tennis.guolo.eu
 
 <img width="295" height="515" alt="IMG_1621" src="https://github.com/user-attachments/assets/7f4bb449-7202-432b-bb61-1fb0d4d621e8" /> <img width="295" height="515" alt="IMG_1622" src="https://github.com/user-attachments/assets/532ed341-0aeb-4bd6-a3a8-86cecaa48478" />
@@ -11,18 +11,9 @@ Prerequisites:
 Create a ```docker-compose.yml``` file:
 ```
 services:
-  fix-permessi-db:
-    image: busybox
-    command: sh -c "mkdir -p /data && chown -R 1000:1000 /data"
-    volumes:
-      - ./db/data:/data
-
   tennis-app:
     image: alguolo/tennis
     container_name: tennis
-    depends_on:
-      fix-permessi-db:
-        condition: service_completed_successfully
     ports:
       - "3333:3333"
     environment:
@@ -30,6 +21,10 @@ services:
     volumes:
       - ./db/data:/app/db/data
     restart: unless-stopped
+```
+In the same directory create a ```data``` directory
+```
+mkdir data
 ```
 
 Start your docker compose:
